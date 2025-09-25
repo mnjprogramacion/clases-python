@@ -2,8 +2,8 @@ from random import randrange
 
 sel = 0
 
-# Jugador 1 = donuts negros
-# Jugador 2 = donuts blancos
+# Jugador 1 = donuts negros ×
+# Jugador 2 = donuts blancos ○
 victoria = 0
 
 print("\n\t░▒▓╔══════╗▓▒░\n\t░▒▓║DONUTS║▓▒░\n\t░▒▓╚══════╝▓▒░")
@@ -41,8 +41,8 @@ def verificarCasilla(y, x):
     return True
 
 def colocar(n, y, x):
-    # n = 1  ->  d negros
-    # n = 2  ->  d blancos
+    # n = 1  ->  d negros ×
+    # n = 2  ->  d blancos ○
     # n = 3  ->  IA
 
     if (x >= 0) and (x < 6) and (y >= 0) and (y < 6):
@@ -81,7 +81,7 @@ def colocar(n, y, x):
                         tablero[y][x] = 10
                     case 3 | 7 | 11:
                         tablero[y][x] = 11
-                        
+
         return verificarCasilla(y, x)
     
     else:
@@ -97,8 +97,12 @@ def empezarJuego(nJ):
         valido = False
         while valido == False:
             print("\n\t▀▄█ Donuts negros █▄▀")
-            y = int(input("\n\tCasilla vertical: ")) - 1
-            x = int(input("\tCasilla horizontal: ")) - 1
+            try:
+                y = int(input("\tCasilla vertical: ")) - 1
+                x = int(input("\tCasilla horizontal: ")) - 1
+            except:
+                y = -1
+                x = -1
             valido = colocar(1, y, x)
             if valido == True:
                 pintarTablero()
@@ -115,8 +119,12 @@ def empezarJuego(nJ):
         else:
             while valido == False:
                 print("\n\t░▒▓ Donuts blancos ▓▒░")
-                y = int(input("\tCasilla vertical: ")) - 1
-                x = int(input("\n\tCasilla horizontal: ")) - 1
+                try:
+                    y = int(input("\tCasilla vertical: ")) - 1
+                    x = int(input("\tCasilla horizontal: ")) - 1
+                except:
+                    y = -1
+                    x = -1
                 valido = colocar(2, y, x)
                 if valido == True:
                     pintarTablero()
