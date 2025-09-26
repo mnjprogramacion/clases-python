@@ -1,6 +1,7 @@
 from random import randrange
 
 sel = 0
+victoria = 0
 
 print("\n\t░▒▓╔══════╗▓▒░\n\t░▒▓║DONUTS║▓▒░\n\t░▒▓╚══════╝▓▒░")
 
@@ -121,9 +122,9 @@ def colocar(n, y, x):
         return False
     
 
-def verificarVictoria():
-    global victoria
-    victoria = 0
+# def verificarVictoria():
+#     global victoria
+#     victoria = 0
 
     
 
