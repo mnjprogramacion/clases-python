@@ -37,15 +37,39 @@ def pintarTablero():
         print(linea)
     print("\t  ╚═════════════╝")
 
+
+# direcciones = {
+#    0: [( -1, 0), ( 1, 0)],   # │: arriba/abajo
+#    1: [( 0,-1), ( 0, 1)],    # ─: izquierda/derecha
+#    2: [(-1, 1), ( 1,-1)],    # /: diagonal ↗ ↙
+#    3: [(-1,-1), ( 1, 1)]     # \: diagonal ↖ ↘
+# }
+
+
 def verificarCasilla(y, x):
+    
+    match tablero[y][x]:
+        case 0 | 4 | 8:
+            tablero[y][x] = 4
+        case 1 | 5 | 9:
+            tablero[y][x] = 5
+        case 2 | 6 | 10:
+            tablero[y][x] = 6
+        case 3 | 7 | 11:
+            tablero[y][x] = 7
+    
+    
+    
+    
     return True
+
 
 def colocar(n, y, x):
     # n = 1  ->  d negros
     # n = 2  ->  d blancos
     # n = 3  ->  IA
 
-    if (x >= 0) and (x < 6) and (y >= 0) and (y < 6):
+    if (x >= 0) and (x < 6) and (y >= 0) and (y < 6) and verificarCasilla(y, x):
         match n:
             case 1:
                 match tablero[y][x]:
@@ -82,7 +106,7 @@ def colocar(n, y, x):
                     case 3 | 7 | 11:
                         tablero[y][x] = 11
                         
-        return verificarCasilla(y, x)
+        return True
     
     else:
             return False
