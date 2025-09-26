@@ -1,9 +1,6 @@
 from random import randrange
 
 sel = 0
-
-# Jugador 1 = donuts negros ×
-# Jugador 2 = donuts blancos ○
 victoria = 0
 
 print("\n\t░▒▓╔══════╗▓▒░\n\t░▒▓║DONUTS║▓▒░\n\t░▒▓╚══════╝▓▒░")
@@ -37,15 +34,48 @@ def pintarTablero():
         print(linea)
     print("\t  ╚═════════════╝")
 
+
+# direcciones = 
+#    0: [( -1, 0), ( 1, 0)]    │: arriba/abajo
+#    1: [( 0,-1), ( 0, 1)]     ─: izquierda/derecha
+#    2: [(-1, 1), ( 1,-1)]     /: diagonal ↗ ↙
+#    3: [(-1,-1), ( 1, 1)]      \: diagonal ↖ ↘
+#
+
+
 def verificarCasilla(y, x):
+    
+    match jugadaAnterior:
+        case 0 | 4 | 8:
+            if ((tablero[y, x][0] == jugadaAnterior[0] + 1) or (tablero[y, x][0] == jugadaAnterior[0] - 1)) and ((tablero[y, x][1] == jugadaAnterior[1]) or (tablero[y, x][1] == jugadaAnterior[1])):
+                return True
+            else:
+                return False
+        case 1 | 5 | 9:
+            if ((tablero[y, x][0] == jugadaAnterior[0]) or (tablero[y, x][0] == jugadaAnterior[0])) and ((tablero[y, x][1] + 1 == jugadaAnterior[1]) or (tablero[y, x][1] == jugadaAnterior[1] - 1)):
+                return True
+            else:
+                return False
+        case 2 | 6 | 10:
+            if (tablero[y, x][0] == jugadaAnterior[0] + 1) and (tablero[y, x][1] == jugadaAnterior[1] + 1) or (tablero[y, x][0] == jugadaAnterior[0] - 1) and (tablero[y, x][1] == jugadaAnterior[1] - 1):
+                return True
+            else:
+                return False
+        case 3 | 7 | 11:
+            if (tablero[y, x][0] == jugadaAnterior[0] + 1) and (tablero[y, x][1] == jugadaAnterior[1] - 1) or (tablero[y, x][0] == jugadaAnterior[0] - 1) and (tablero[y, x][1] == jugadaAnterior[1] + 1):
+                return True
+            else:
+                return False
+            
     return True
+
 
 def colocar(n, y, x):
     # n = 1  ->  d negros ×
     # n = 2  ->  d blancos ○
     # n = 3  ->  IA
 
-    if (x >= 0) and (x < 6) and (y >= 0) and (y < 6):
+    if (x >= 0) and (x < 6) and (y >= 0) and (y < 6) and verificarCasilla(y, x):
         match n:
             case 1:
                 match tablero[y][x]:
@@ -81,14 +111,17 @@ def colocar(n, y, x):
                         tablero[y][x] = 10
                     case 3 | 7 | 11:
                         tablero[y][x] = 11
-
-        return verificarCasilla(y, x)
+                        
+        return True
     
     else:
             return False
     
 
 def empezarJuego(nJ):
+    global jugadaAnterior
+    jugadaAnterior = [0, 0]
+
     generarTablero()
     pintarTablero()
 
@@ -106,6 +139,7 @@ def empezarJuego(nJ):
             valido = colocar(1, y, x)
             if valido == True:
                 pintarTablero()
+                jugadaAnterior = (y, x)
             else:
                 print("\n\tCasilla no válida.")
 
@@ -116,6 +150,7 @@ def empezarJuego(nJ):
                 if valido == True:
                     print("\n\tøøø Turno IA øøø")
                     pintarTablero()
+                    jugadaAnterior = (y, x)
         else:
             while valido == False:
                 print("\n\t░▒▓ Donuts blancos ▓▒░")
@@ -128,6 +163,7 @@ def empezarJuego(nJ):
                 valido = colocar(2, y, x)
                 if valido == True:
                     pintarTablero()
+                    jugadaAnterior = (y, x)
                 else:
                     print("\n\tCasilla no válida.")
 
