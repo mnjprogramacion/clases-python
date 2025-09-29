@@ -45,7 +45,7 @@ def pintarTablero():
             case 3 | 7 | 11:
                 casilla = "\\"
 
-        print(f"\n\tÚltima casilla: {casilla} ({jugadaAnterior[0]+1}, {jugadaAnterior[0]+1})")
+        print(f"\n\tÚltima casilla: {casilla} ({jugadaAnterior[0]+1}, {jugadaAnterior[1]+1})")
 
 
 def verificarCasilla(y, x):
@@ -122,9 +122,24 @@ def colocar(n, y, x):
         return False
     
 
-# def verificarVictoria():
-#     global victoria
-#     victoria = 0
+def verificarVictoria():
+    global victoria
+    victoria = 0
+    y = jugadaAnterior[0]
+    x = jugadaAnterior[1]
+    contador = 0
+
+    # Vertical
+    y -= 2
+    x -= 2
+    for _ in range(2):
+        if 4 <= tablero[y, x] <= 7:
+            contador += 1
+            y += 2
+            x += 2
+        
+
+        
 
     
 
@@ -161,7 +176,9 @@ def empezarJuego(nJ):
         valido = False
         if nJ == 1:
             while valido == False:
-                valido = colocar(3, 0, 0)
+                y = randrange(0,3)
+                x = randrange(0,3)
+                valido = colocar(2, y, x)
                 if valido == True:
                     print("\n\tøøø Turno IA øøø")
                     jugadaAnterior = (y, x)
