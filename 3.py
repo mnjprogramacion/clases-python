@@ -67,8 +67,7 @@ def verificarCasilla(y, x):
 
 def colocar(n, y, x):
     # n = 1  ->  d negros ×
-    # n = 2  ->  d blancos ○
-    # n = 3  ->  IA ○
+    # n = 2  ->  d blancos ○ / IA
     permitir = False
 
     if (x >= 0) and (x < 6) and (y >= 0) and (y < 6):
@@ -79,41 +78,18 @@ def colocar(n, y, x):
             permitir = verificarCasilla(y, x)
 
         if permitir == True:
-            match n:
-                case 1:
-                    match tablero[y][x]:
-                        case 0 | 4 | 8:
-                            tablero[y][x] = 4
-                        case 1 | 5 | 9:
-                            tablero[y][x] = 5
-                        case 2 | 6 | 10:
-                            tablero[y][x] = 6
-                        case 3 | 7 | 11:
-                            tablero[y][x] = 7
+            match tablero[y][x]:
+                case 0 | 4 | 8:
+                    tablero[y][x] = 4
+                case 1 | 5 | 9:
+                    tablero[y][x] = 5
+                case 2 | 6 | 10:
+                    tablero[y][x] = 6
+                case 3 | 7 | 11:
+                    tablero[y][x] = 7
+            if n == 2:
+                tablero[y][x] += 4
 
-                case 2:
-                    match tablero[y][x]:
-                        case 0 | 4 | 8:
-                            tablero[y][x] = 8
-                        case 1 | 5 | 9:
-                            tablero[y][x] = 9
-                        case 2 | 6 | 10:
-                            tablero[y][x] = 10
-                        case 3 | 7 | 11:
-                            tablero[y][x] = 11
-
-                case 3:
-                    x = randrange(0,3)
-                    y = randrange(0,3)
-                    match tablero[y][x]:
-                        case 0 | 4 | 8:
-                            tablero[y][x] = 8
-                        case 1 | 5 | 9:
-                            tablero[y][x] = 9
-                        case 2 | 6 | 10:
-                            tablero[y][x] = 10
-                        case 3 | 7 | 11:
-                            tablero[y][x] = 11
             return True
         else:
             return False
@@ -125,18 +101,25 @@ def colocar(n, y, x):
 def verificarVictoria():
     global victoria
     victoria = 0
-    y = jugadaAnterior[0]
-    x = jugadaAnterior[1]
-    contador = 0
 
-    # Vertical
-    y -= 2
-    x -= 2
-    for _ in range(2):
-        if 4 <= tablero[y, x] <= 7:
-            contador += 1
-            y += 2
-            x += 2
+    # vertical
+    y, x = jugadaAnterior           # última jugada
+    contRosq = 1                    # contamos la propia ficha
+
+    # hacia arriba
+    ny = y - 1
+    while ny >= 0 and tablero[ny][x] in (4, 5, 6, 7):
+        contRosq += 1
+        ny -= 1
+
+    # hacia abajo
+    ny = y + 1
+    while ny < 6 and tablero[ny][x] in (4, 5, 6, 7):
+        contRosq += 1
+        ny += 1
+
+    if contRosq >= 5:
+        victoria = 1
         
 
         
