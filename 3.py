@@ -98,28 +98,72 @@ def colocar(n, y, x):
         return False
     
 
-def verificarVictoria():
+def verificarVictoria(n):
     global victoria
     victoria = 0
 
-    # vertical
+    # vertical │
     y, x = jugadaAnterior           # última jugada
     contRosq = 1                    # contamos la propia ficha
-
     # hacia arriba
     ny = y - 1
     while ny >= 0 and tablero[ny][x] in (4, 5, 6, 7):
         contRosq += 1
         ny -= 1
-
     # hacia abajo
     ny = y + 1
     while ny < 6 and tablero[ny][x] in (4, 5, 6, 7):
         contRosq += 1
         ny += 1
-
     if contRosq >= 5:
-        victoria = 1
+        match n:
+            case 1:
+                victoria = 1
+            case 2:
+                victoria = 2
+
+    # horizontal ─
+    y, x = jugadaAnterior           # última jugada
+    contRosq = 1                    # contamos la propia ficha
+    # hacia izquierda
+    nx = x - 1
+    while nx >= 0 and tablero[y][nx] in (4, 5, 6, 7):
+        contRosq += 1
+        nx -= 1
+    # hacia derecha
+    nx = x + 1
+    while nx < 6 and tablero[y][nx] in (4, 5, 6, 7):
+        contRosq += 1
+        nx += 1
+    if contRosq >= 5:
+        match n:
+            case 1:
+                victoria = 1
+            case 2:
+                victoria = 2
+
+    # diagonal /
+    y, x = jugadaAnterior           # última jugada
+    contRosq = 1                    # contamos la propia ficha
+    # hacia arriba derecha
+    ny = y - 1
+    nx = x + 1
+    while ny >= 0 and nx < 6 and tablero[ny][nx] in (4, 5, 6, 7):
+        contRosq += 1
+        ny -= 1
+        nx += 1
+    # hacia abajo izquierda
+    nx = x + 1
+    while ny < 6 and nx >= 0 and tablero[ny][nx] in (4, 5, 6, 7):
+        contRosq += 1
+        ny += 1
+        nx -= 1
+    if contRosq >= 5:
+        match n:
+            case 1:
+                victoria = 1
+            case 2:
+                victoria = 2
         
 
         
