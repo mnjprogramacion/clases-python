@@ -98,77 +98,45 @@ def colocar(n, y, x):
         return False
     
 
-def verificarVictoria(n):
+def verificarVictoria():
     global victoria
     victoria = 0
 
-    # vertical │
-    y, x = jugadaAnterior           # última jugada
-    contRosq = 1                    # contamos la propia ficha
-    # hacia arriba
-    ny = y - 1
-    while ny >= 0 and tablero[ny][x] in (4, 5, 6, 7):
-        contRosq += 1
-        ny -= 1
-    # hacia abajo
-    ny = y + 1
-    while ny < 6 and tablero[ny][x] in (4, 5, 6, 7):
-        contRosq += 1
-        ny += 1
-    if contRosq >= 5:
-        match n:
-            case 1:
-                victoria = 1
-            case 2:
-                victoria = 2
+    y, x = jugadaAnterior
+    cell = tablero[y][x]
 
-    # horizontal ─
-    y, x = jugadaAnterior           # última jugada
-    contRosq = 1                    # contamos la propia ficha
-    # hacia izquierda
-    nx = x - 1
-    while nx >= 0 and tablero[y][nx] in (4, 5, 6, 7):
-        contRosq += 1
-        nx -= 1
-    # hacia derecha
-    nx = x + 1
-    while nx < 6 and tablero[y][nx] in (4, 5, 6, 7):
-        contRosq += 1
-        nx += 1
-    if contRosq >= 5:
-        match n:
-            case 1:
-                victoria = 1
-            case 2:
-                victoria = 2
+    if cell in (4, 5, 6, 7):
+        cellVal = (4, 5, 6, 7)
+        ganador = 1
+    elif cell in (8, 9, 10, 11):
+        cellVal = (8, 9, 10, 11)
+        ganador = 2
+    else:
+        return
 
-    # diagonal /
-    y, x = jugadaAnterior           # última jugada
-    contRosq = 1                    # contamos la propia ficha
-    # hacia arriba derecha
-    ny = y - 1
-    nx = x + 1
-    while ny >= 0 and nx < 6 and tablero[ny][nx] in (4, 5, 6, 7):
-        contRosq += 1
-        ny -= 1
-        nx += 1
-    # hacia abajo izquierda
-    nx = x + 1
-    while ny < 6 and nx >= 0 and tablero[ny][nx] in (4, 5, 6, 7):
-        contRosq += 1
-        ny += 1
-        nx -= 1
-    if contRosq >= 5:
-        match n:
-            case 1:
-                victoria = 1
-            case 2:
-                victoria = 2
-        
+    # vertical │, horizontal ─, diagonal /, diagonal \
+    direcciones = [
+        (-1, 0), (0, -1), (-1, 1), (-1, -1)
+    ]
 
-        
+    for dy, dx in direcciones:
+        contador = 1
 
-    
+        ny, nx = y + dy, x + dx
+        while 0 <= ny < 6 and 0 <= nx < 6 and tablero[ny][nx] in cellVal:
+            contador += 1
+            ny += dy
+            nx += dx
+
+        ny, nx = y - dy, x - dx
+        while 0 <= ny < 6 and 0 <= nx < 6 and tablero[ny][nx] in cellVal:
+            contador += 1
+            ny -= dy
+            nx -= dx
+
+        if contador >= 5:
+            victoria = ganador
+            return
 
 
 def empezarJuego(nJ):
@@ -207,7 +175,7 @@ def empezarJuego(nJ):
                 x = randrange(0,3)
                 valido = colocar(2, y, x)
                 if valido == True:
-                    print("\n\tøøø Turno IA øøø")
+                    print("\n\t░▒▓ Donuts blancos (IA) ▓▒░")
                     jugadaAnterior = (y, x)
                     pintarTablero()
         else:
@@ -225,6 +193,10 @@ def empezarJuego(nJ):
                     pintarTablero()
                 else:
                     print("\n\tCasilla no válida.")
+    if victoria == 1:
+        print("¡Ganan los donuts negros!")
+    if victoria == 2:
+        print("¡Ganan los donuts blancos!")
 
 while not ((sel == 1) or (sel == 2) or (sel == 3) or (sel == 4)):
     print("\n\t1. 1 jugador.")
