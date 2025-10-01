@@ -175,8 +175,8 @@ class Menu:
         self.sel = 0
         self.juego = Donuts()
     def iniciar(self):
-        print("\n\t░▒▓╔══════╗▓▒░\n\t░▒▓║DONUTS║▓▒░\n\t░▒▓╚══════╝▓▒░")
-        while not ((self.sel == 1) or (self.sel == 2) or (self.sel == 3) or (self.sel == 4)):
+        while not (self.sel == 4):
+            print("\n\t░▒▓╔══════╗▓▒░\n\t░▒▓║DONUTS║▓▒░\n\t░▒▓╚══════╝▓▒░")
             print("\n\t1. 1 jugador.")
             print("\t2. 2 jugadores.")
             print("\t3. Leer las reglas.")
@@ -191,7 +191,12 @@ class Menu:
                 case 2:
                     self.juego.empezarJuego(2)
                 case 3:
-                    print("\n\tReglas")
+                    print("\n\tDonuts es un juego similar al 3 en raya.")
+                    print("\tDebes colocar 5 donuts consecutivos en una línea antes que tu oponente.")
+                    print("\n\tSe genera un tablero nuevo aleatorio cada partida.")
+                    print("\tSolo puedes colocar tu donut en las direcciones de la línea de la última casilla ocupada por tu oponente.")
+                    print("\t│ = arriba o abajo   ─ = izquierda o derecha   / = arriba a la derecha o abajo a la izquierda   \\ = arriba a la izquierda o abajo a la derecha")
+                    print("\n\tPuedes jugar contra la IA o contra un amigo.")
                 case 4:
                     print("\n\tSaliendo del programa...")
                 case _:
