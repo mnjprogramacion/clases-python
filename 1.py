@@ -20,30 +20,30 @@ class Fraccion:
         signo_str = "-" if self.signo < 0 else ""
         return signo_str + str(self.numerador) + '/' + str(self.denominador)
 
-    def __eq__(self, fraccionb):
-        return (self.signo == fraccionb.signo and
-                self.numerador == fraccionb.numerador and
-                self.denominador == fraccionb.denominador)
+    def __eq__(self, fb):
+        return (self.signo == fb.signo and
+                self.numerador == fb.numerador and
+                self.denominador == fb.denominador)
 
-    def __add__(self, fraccionb):
+    def __add__(self, fb):
         num1 = self.signo * self.numerador
-        num2 = fraccionb.signo * fraccionb.numerador
-        nuevo_num = num1 * fraccionb.denominador + num2 * self.denominador
-        nuevo_den = self.denominador * fraccionb.denominador
+        num2 = fb.signo * fb.numerador
+        nuevo_num = num1 * fb.denominador + num2 * self.denominador
+        nuevo_den = self.denominador * fb.denominador
         return Fraccion(nuevo_num, nuevo_den)
 
-    def __lt__(self, fraccionb):
-        return (self.signo * self.numerador * fraccionb.denominador <
-                fraccionb.signo * fraccionb.numerador * self.denominador)
+    def __lt__(self, fb):
+        return (self.signo * self.numerador * fb.denominador <
+                fb.signo * fb.numerador * self.denominador)
 
-    def __le__(self, fraccionb):
-        return self < fraccionb or self == fraccionb
+    def __le__(self, fb):
+        return self < fb or self == fb
 
-    def __gt__(self, fraccionb):
-        return not (self <= fraccionb)
+    def __gt__(self, fb):
+        return not (self <= fb)
 
-    def __ge__(self, fraccionb):
-        return not (self < fraccionb)
+    def __ge__(self, fb):
+        return not (self < fb)
 
 class FraccionEnt(Fraccion):
 
@@ -54,11 +54,15 @@ class FraccionEnt(Fraccion):
 x=Fraccion(1,2)
 print(x.numerador)
 
-x1=Fraccion(1,2)
-y=FraccionEnt(1,2,3)
-#print(y.pentera)
-if x == y:
-    print("Son iguales")
-else: 
-    print("Son diferentes")
-print(x)
+
+f1 = Fraccion(2, 4)
+f2 = Fraccion(1, 2)
+f3 = Fraccion(3, 4)
+
+print(f1)
+print(f1 == f2)
+print(f1 + f3)
+print(f1 < f3)
+print(f1 <= f2)
+print(f3 > f1)
+print(f2 >= f1)

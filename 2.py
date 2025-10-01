@@ -41,12 +41,17 @@ class ListaDeFiguras:
         return sum(isinstance(figura, TrianguloRectangulo) for figura in self.figuras)
 
 
-# Ejemplo de uso
-if __name__ == "__main__":
-    lista = ListaDeFiguras()
-    lista.añadir_triangulo(3, 4)  # triángulo rectángulo
-    lista.añadir_cuadrado(5)      # cuadrado de lado 5
-    lista.añadir_triangulo(6, 8)  # otro triángulo
+lista = ListaDeFiguras()
 
-    print("Superficie total:", lista.superficie_total())
-    print("Número de triángulos:", lista.contar_triangulos())
+t = TrianguloRectangulo(3, 4)
+r = Rectangulo(2, 5)
+
+print(t.hipotenusa())
+print(t.superficie())
+print(r.superficie())
+
+lista.añadir_triangulo(3, 4)
+lista.añadir_cuadrado(4)
+
+print(lista.superficie_total())
+print(lista.contar_triangulos())
