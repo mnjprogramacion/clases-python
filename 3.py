@@ -48,16 +48,24 @@ class Donuts:
             print(f"\n\tÚltima casilla: {casilla} ({self.jugadaAnterior[0]+1}, {self.jugadaAnterior[1]+1})")
 
     def verificarCasilla(self, y, x):
-        dy = y - self.jugadaAnterior[0]
-        dx = x - self.jugadaAnterior[1]
-        valor_anterior = self.tablero[self.jugadaAnterior[0]][self.jugadaAnterior[1]] % 4
+        y0, x0 = self.jugadaAnterior
+        valor_anterior = self.tablero[y0][x0] % 4
         direcciones = {
-            0: [(-1,0), (1,0)],
-            1: [(0,-1), (0,1)],
-            2: [(-1,1), (1,-1)],
-            3: [(-1,-1), (1,1)]
+            0: [(-1, 0), (1, 0)],
+            1: [(0, -1), (0, 1)],
+            2: [(-1, 1), (1, -1)],
+            3: [(-1, -1), (1, 1)]
         }
-        return (dy, dx) in direcciones[valor_anterior]
+
+        for dy, dx in direcciones[valor_anterior]:
+            ny, nx = y0 + dy, x0 + dx
+            while 0 <= ny < 6 and 0 <= nx < 6:
+                if ny == y and nx == x:
+                    return True
+                ny += dy
+                nx += dx
+
+        return False
 
     def colocar(self, n, y, x):
         permitir = False
@@ -115,6 +123,10 @@ class Donuts:
                 self.victoria = ganador
                 return
 
+    def tableroLleno(self):
+        return all(celda not in (0, 1, 2, 3) for fila in self.tablero for celda in fila)
+
+
     def empezarJuego(self, nJ):
         self.jugadaAnterior = None
         self.generarTablero()
@@ -165,10 +177,16 @@ class Donuts:
                     else:
                         print("\n\tCasilla no válida.")
             self.verificarVictoria()
+
+            if self.tableroLleno():
+                print("\n\t¡Empate!")
+                break
         if self.victoria == 1:
             print("¡Ganan los donuts negros!")
         if self.victoria == 2:
             print("¡Ganan los donuts blancos!")
+
+
 
 class Menu:
     def __init__(self):
