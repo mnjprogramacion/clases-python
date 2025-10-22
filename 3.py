@@ -126,6 +126,37 @@ class Donuts:
     def tableroLleno(self):
         return all(celda not in (0, 1, 2, 3) for fila in self.tablero for celda in fila)
 
+    def capturarFichas(self, jugador, y, x):
+        direcciones = [
+            (-1, 0), (1, 0),       # vertical
+            (0, -1), (0, 1),       # horizontal
+            (-1, -1), (-1, 1),     # diagonales
+            (1, -1), (1, 1)
+        ]
+
+        if jugador == 1:
+            propio = (4, 5, 6, 7)
+            rival = (8, 9, 10, 11)
+        else:
+            propio = (8, 9, 10, 11)
+            rival = (4, 5, 6, 7)
+
+        for dy, dx in direcciones:
+            ny, nx = y + dy, x + dx
+            fichas_capturadas = []
+
+            while 0 <= ny < 6 and 0 <= nx < 6 and self.tablero[ny][nx] in rival:
+                fichas_capturadas.append((ny, nx))
+                ny += dy
+                nx += dx
+
+            if 0 <= ny < 6 and 0 <= nx < 6 and self.tablero[ny][nx] in propio and len(fichas_capturadas) > 0:
+                for cy, cx in fichas_capturadas:
+                    forma = self.tablero[cy][cx] % 4
+                    if jugador == 1:
+                        self.tablero[cy][cx] = 4 + forma
+                    else:
+                        self.tablero[cy][cx] = 8 + forma
 
     def empezarJuego(self, nJ):
         self.jugadaAnterior = None
@@ -148,6 +179,7 @@ class Donuts:
                     valido = True
                 if valido == True:
                     self.jugadaAnterior = (y, x)
+                    self.capturarFichas(1, y, x)
                     self.pintarTablero()
                 else:
                     print("\n\tCasilla no válida.")
@@ -160,6 +192,7 @@ class Donuts:
                     if valido == True:
                         print("\n\t░▒▓ Donuts blancos (IA) ▓▒░")
                         self.jugadaAnterior = (y, x)
+                        self.capturarFichas(2, y, x)
                         self.pintarTablero()
             else:
                 while valido == False:
