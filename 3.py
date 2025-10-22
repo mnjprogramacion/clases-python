@@ -51,19 +51,26 @@ class Donuts:
         y0, x0 = self.jugadaAnterior
         valor_anterior = self.tablero[y0][x0] % 4
         direcciones = {
-            0: [(-1, 0), (1, 0)],
-            1: [(0, -1), (0, 1)],
-            2: [(-1, 1), (1, -1)],
-            3: [(-1, -1), (1, 1)]
+            0: [(-1,0),(1,0)],        # vertical
+            1: [(0,-1),(0,1)],        # horizontal
+            2: [(-1,1),(1,-1)],       # diagonal /
+            3: [(-1,-1),(1,1)]        # diagonal \
         }
 
         for dy, dx in direcciones[valor_anterior]:
-            ny, nx = y0 + dy, x0 + dx
+            ny, nx = y0, x0
             while 0 <= ny < 6 and 0 <= nx < 6:
-                if ny == y and nx == x:
+                if (ny, nx) == (y, x):
                     return True
                 ny += dy
                 nx += dx
+
+            ny, nx = y0, x0
+            while 0 <= ny < 6 and 0 <= nx < 6:
+                if (ny, nx) == (y, x):
+                    return True
+                ny -= dy
+                nx -= dx
 
         return False
 
@@ -91,6 +98,15 @@ class Donuts:
                 return False
         else:
             return False
+        
+    def movimientosValidos(self):
+        posiciones = []
+        for y in range(6):
+            for x in range(6):
+                if self.tablero[y][x] in (0, 1, 2, 3):
+                    if self.jugadaAnterior is None or self.verificarCasilla(y, x):
+                        posiciones.append((y, x))
+        return posiciones
 
     def verificarVictoria(self):
         self.victoria = 0
@@ -185,15 +201,17 @@ class Donuts:
                     print("\n\tCasilla no válida.")
             valido = False
             if nJ == 1:
-                while valido == False:
-                    y = randrange(0,3)
-                    x = randrange(0,3)
-                    valido = self.colocar(2, y, x)
-                    if valido == True:
-                        print("\n\t░▒▓ Donuts blancos (IA) ▓▒░")
-                        self.jugadaAnterior = (y, x)
-                        self.capturarFichas(2, y, x)
-                        self.pintarTablero()
+                validas = self.movimientosValidos()
+                if validas:
+                    y, x = validas[randrange(len(validas))]
+                    self.colocar(2, y, x)
+                    self.jugadaAnterior = (y, x)
+                    self.capturarFichas(2, y, x)
+                    print("\n\t░▒▓ Donuts blancos (IA) ▓▒░")
+                    self.pintarTablero()
+                else:
+                    print("\n\t¡Empate!")
+                    break
             else:
                 while valido == False:
                     print("\n\t░▒▓ Donuts blancos ▓▒░")
@@ -206,6 +224,7 @@ class Donuts:
                     valido = self.colocar(2, y, x)
                     if valido == True:
                         self.jugadaAnterior = (y, x)
+                        self.capturarFichas(2, y, x)
                         self.pintarTablero()
                     else:
                         print("\n\tCasilla no válida.")
