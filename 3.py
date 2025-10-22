@@ -47,32 +47,98 @@ class Donuts:
 
             print(f"\n\tÚltima casilla: {casilla} ({self.jugadaAnterior[0]+1}, {self.jugadaAnterior[1]+1})")
 
-    def verificarCasilla(self, y, x):
+    def verificarContiguas(self, y, x):
+        """Devuelve True si (y,x) es contigua a la última ficha según la dirección de la casilla."""
+        if self.jugadaAnterior is None:
+            return True  # Primera jugada
+
         y0, x0 = self.jugadaAnterior
         valor_anterior = self.tablero[y0][x0] % 4
         direcciones = {
-            0: [(-1,0),(1,0)],        # vertical
-            1: [(0,-1),(0,1)],        # horizontal
-            2: [(-1,1),(1,-1)],       # diagonal /
-            3: [(-1,-1),(1,1)]        # diagonal \
+            0: [(-1,0),(1,0)],       # vertical
+            1: [(0,-1),(0,1)],       # horizontal
+            2: [(-1,1),(1,-1)],      # diagonal /
+            3: [(-1,-1),(1,1)]       # diagonal \
         }
 
         for dy, dx in direcciones[valor_anterior]:
-            ny, nx = y0, x0
-            while 0 <= ny < 6 and 0 <= nx < 6:
+            ny, nx = y0 + dy, x0 + dx
+            if 0 <= ny < 6 and 0 <= nx < 6 and self.tablero[ny][nx] in (0,1,2,3):
                 if (ny, nx) == (y, x):
                     return True
-                ny += dy
-                nx += dx
-
-            ny, nx = y0, x0
-            while 0 <= ny < 6 and 0 <= nx < 6:
-                if (ny, nx) == (y, x):
-                    return True
-                ny -= dy
-                nx -= dx
-
         return False
+
+
+    def verificarLineaBorde(self, y, x):
+        """Devuelve True si (y,x) está en la línea libre de un borde según la dirección de la última ficha."""
+        if self.jugadaAnterior is None:
+            return False
+
+        y0, x0 = self.jugadaAnterior
+        valor_anterior = self.tablero[y0][x0] % 4
+        direcciones = {
+            0: [(-1,0),(1,0)],
+            1: [(0,-1),(0,1)],
+            2: [(-1,1),(1,-1)],
+            3: [(-1,-1),(1,1)]
+        }
+
+        for dy, dx in direcciones[valor_anterior]:
+            ny, nx = y0 + dy, x0 + dx
+            # Comprobar si la dirección está bloqueada por el borde
+            if not (0 <= ny < 6 and 0 <= nx < 6):
+                ny, nx = y0, x0
+                while 0 <= ny < 6 and 0 <= nx < 6:
+                    if self.tablero[ny][nx] in (0,1,2,3) and (ny, nx) == (y, x):
+                        return True
+                    ny += dy
+                    nx += dx
+        return False
+
+
+    def verificarCasilla(self, y, x):
+        """
+        Devuelve True si la jugada (y,x) es válida según el orden de prioridades:
+        1️⃣ Contiguas
+        2️⃣ Línea de borde
+        3️⃣ Libertad total se maneja en movimientosValidos()
+        """
+        if self.tablero[y][x] not in (0,1,2,3):
+            return False
+        if self.verificarContiguas(y,x):
+            return True
+        if self.verificarLineaBorde(y,x):
+            return True
+        return False
+
+
+    def movimientosValidos(self):
+        posiciones = []
+
+        # 1️⃣ Contiguas
+        for y in range(6):
+            for x in range(6):
+                if self.verificarContiguas(y,x):
+                    posiciones.append((y,x))
+        if posiciones:
+            return posiciones
+
+        # 2️⃣ Línea de borde
+        for y in range(6):
+            for x in range(6):
+                if self.verificarLineaBorde(y,x):
+                    posiciones.append((y,x))
+        if posiciones:
+            return posiciones
+
+        # 3️⃣ Libertad total
+        for y in range(6):
+            for x in range(6):
+                if self.tablero[y][x] in (0,1,2,3):
+                    posiciones.append((y,x))
+
+        return posiciones
+
 
     def colocar(self, n, y, x):
         permitir = False
@@ -98,15 +164,6 @@ class Donuts:
                 return False
         else:
             return False
-        
-    def movimientosValidos(self):
-        posiciones = []
-        for y in range(6):
-            for x in range(6):
-                if self.tablero[y][x] in (0, 1, 2, 3):
-                    if self.jugadaAnterior is None or self.verificarCasilla(y, x):
-                        posiciones.append((y, x))
-        return posiciones
 
     def verificarVictoria(self):
         self.victoria = 0
@@ -264,8 +321,10 @@ class Menu:
                     print("\n\tDonuts es un juego similar al 3 en raya.")
                     print("\tDebes colocar 5 donuts consecutivos en una línea antes que tu oponente.")
                     print("\n\tSe genera un tablero nuevo aleatorio cada partida.")
-                    print("\tSolo puedes colocar tu donut en las direcciones de la línea de la última casilla ocupada por tu oponente.")
+                    print("\tSolo puedes colocar tu donut en las casillas contiguas la última casilla ocupada por tu oponente, en la dirección marcada por la línea.")
                     print("\t│ = arriba o abajo   ─ = izquierda o derecha   / = arriba a la derecha o abajo a la izquierda   \\ = arriba a la izquierda o abajo a la derecha")
+                    print("\n\tSi colocas dos donuts a los lados de tu contrincante, su ficha pasa a ser tuya.")
+                    print("\tSi un jugador coloca un donut en un borde del tablero, el contrincante puede colocar su donut en toda la línea de casillas que indica la dirección, sin ser contigua.")
                     print("\n\tPuedes jugar contra la IA o contra un amigo.")
                 case 4:
                     print("\n\tSaliendo del programa...")
