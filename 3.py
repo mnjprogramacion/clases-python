@@ -11,7 +11,7 @@ class Donuts:
         self.tablero = [[randrange(0, 4) for _ in range(6)] for _ in range(6)]
 
     def pintarTablero(self):
-        # Pinta el tablero con diseño ASCII
+        # Pinta el tablero con diseño ASCII, según el array generado
         n = 1
         print("\n\t    1 2 3 4 5 6")
         print("\t  ╔═════════════╗")
