@@ -83,17 +83,34 @@ class Donuts:
             3: [(-1,-1),(1,1)]
         }
 
-        for dy, dx in direcciones[valor_anterior]:
+        # las dos direcciones
+        dir1, dir2 = direcciones[valor_anterior]
+
+        # función auxiliar: recorre desde (y0,x0) en direction (dy,dx) y busca (y,x) entre casillas vacías
+        def recorrer(dy, dx):
             ny, nx = y0 + dy, x0 + dx
-            # Comprobar si la dirección está bloqueada por el borde
-            if not (0 <= ny < 6 and 0 <= nx < 6):
-                ny, nx = y0, x0
-                while 0 <= ny < 6 and 0 <= nx < 6:
-                    if self.tablero[ny][nx] in (0,1,2,3) and (ny, nx) == (y, x):
+            while 0 <= ny < 6 and 0 <= nx < 6:
+                if self.tablero[ny][nx] in (0,1,2,3):
+                    if (ny, nx) == (y, x):
                         return True
-                    ny += dy
-                    nx += dx
+                ny += dy
+                nx += dx
+            return False
+
+        # Si dir1 está bloqueada, la línea libre es dir2 (recorremos dir2).
+        dy1, dx1 = dir1
+        dy2, dx2 = dir2
+        bloqueada1 = not (0 <= y0 + dy1 < 6 and 0 <= x0 + dx1 < 6)
+        bloqueada2 = not (0 <= y0 + dy2 < 6 and 0 <= x0 + dx2 < 6)
+
+        if bloqueada1 and not bloqueada2:
+            return recorrer(dy2, dx2)
+        if bloqueada2 and not bloqueada1:
+            return recorrer(dy1, dx1)
+
+        # Si ninguna está bloqueada o ambas están bloqueadas (esquina muy rara), no aplica "línea de borde"
         return False
+
 
 
     def verificarCasilla(self, y, x):
@@ -141,60 +158,90 @@ class Donuts:
 
 
     def colocar(self, n, y, x):
-        permitir = False
-        if (x >= 0) and (x < 6) and (y >= 0) and (y < 6):
-            if self.jugadaAnterior == None:
-                permitir = True
-            else:
-                permitir = self.verificarCasilla(y, x)
-            if permitir == True:
-                match self.tablero[y][x]:
-                    case 0 | 4 | 8:
-                        self.tablero[y][x] = 4
-                    case 1 | 5 | 9:
-                        self.tablero[y][x] = 5
-                    case 2 | 6 | 10:
-                        self.tablero[y][x] = 6
-                    case 3 | 7 | 11:
-                        self.tablero[y][x] = 7
-                if n == 2:
-                    self.tablero[y][x] += 4
-                return True
-            else:
-                return False
-        else:
+        # Comprobaciones de frontera
+        if not (0 <= x < 6 and 0 <= y < 6):
             return False
 
-    def verificarVictoria(self):
-        self.victoria = 0
-        y, x = self.jugadaAnterior
-        cell = self.tablero[y][x]
-        if cell in (4, 5, 6, 7):
-            cellVal = (4, 5, 6, 7)
-            ganador = 1
-        elif cell in (8, 9, 10, 11):
-            cellVal = (8, 9, 10, 11)
-            ganador = 2
+        # La casilla debe estar vacía siempre
+        if self.tablero[y][x] not in (0,1,2,3):
+            return False
+
+        # Si es la primera jugada, cualquier casilla vacía es válida
+        if self.jugadaAnterior is None:
+            permitir = True
         else:
-            return
-        direcciones = [
-            (-1, 0), (0, -1), (-1, 1), (-1, -1)
-        ]
-        for dy, dx in direcciones:
-            contador = 1
-            ny, nx = y + dy, x + dx
-            while 0 <= ny < 6 and 0 <= nx < 6 and self.tablero[ny][nx] in cellVal:
-                contador += 1
-                ny += dy
-                nx += dx
-            ny, nx = y - dy, x - dx
-            while 0 <= ny < 6 and 0 <= nx < 6 and self.tablero[ny][nx] in cellVal:
-                contador += 1
-                ny -= dy
-                nx -= dx
-            if contador >= 5:
-                self.victoria = ganador
-                return
+            # Obtener la lista oficial de movimientos válidos (respeta prioridades)
+            validas = self.movimientosValidos()
+            # Si no hay movimientos válidos, validas será [] (tablero lleno → empate)
+            # pero normalmente se pasa por aqui porque antes se comprueba validas al llamar IA.
+            permitir = (y, x) in validas
+
+        if not permitir:
+            return False
+
+        # Colocar la ficha según la forma original de la casilla
+        match self.tablero[y][x]:
+            case 0 | 4 | 8:
+                self.tablero[y][x] = 4
+            case 1 | 5 | 9:
+                self.tablero[y][x] = 5
+            case 2 | 6 | 10:
+                self.tablero[y][x] = 6
+            case 3 | 7 | 11:
+                self.tablero[y][x] = 7
+        # Si es jugador 2 (IA) añade +4 (manteniendo la semántica de tu código)
+        if n == 2:
+            self.tablero[y][x] += 4
+
+        return True
+    
+
+    def verificarVictoria(self):
+        """
+        Busca en todo el tablero si existe una línea de 5 (o más) consecutivas
+        de donuts negros (4..7) o blancos (8..11). Si encuentra, pone self.victoria
+        en 1 o 2 y devuelve.
+        """
+        self.victoria = 0
+
+        # funciones helper para comprobar si una celda pertenece a jugador 1 o 2
+        def es_negro(val):
+            return val in (4,5,6,7)
+        def es_blanco(val):
+            return val in (8,9,10,11)
+
+        # direcciones: vertical, horizontal, diagonal \, diagonal /
+        direcciones = [(1,0), (0,1), (1,1), (1,-1)]
+
+        for y in range(6):
+            for x in range(6):
+                val = self.tablero[y][x]
+                if not (es_negro(val) or es_blanco(val)):
+                    continue
+
+                # determinar a qué jugador pertenece esta celda
+                es_j1 = es_negro(val)
+                # recorrer 4 direcciones desde esta celda
+                for dy, dx in direcciones:
+                    contador = 1
+                    ny, nx = y + dy, x + dx
+                    while 0 <= ny < 6 and 0 <= nx < 6:
+                        nv = self.tablero[ny][nx]
+                        if es_j1 and es_negro(nv):
+                            contador += 1
+                        elif (not es_j1) and es_blanco(nv):
+                            contador += 1
+                        else:
+                            break
+                        ny += dy
+                        nx += dx
+
+                    # si contamos 5 o más → victoria
+                    if contador >= 5:
+                        self.victoria = 1 if es_j1 else 2
+                        return
+        # si no encuentra nada, self.victoria queda en 0
+
 
     def tableroLleno(self):
         return all(celda not in (0, 1, 2, 3) for fila in self.tablero for celda in fila)
@@ -291,9 +338,9 @@ class Donuts:
                 print("\n\t¡Empate!")
                 break
         if self.victoria == 1:
-            print("¡Ganan los donuts negros!")
+            print("\n¡Ganan los donuts negros!")
         if self.victoria == 2:
-            print("¡Ganan los donuts blancos!")
+            print("\n¡Ganan los donuts blancos!")
 
 
 
