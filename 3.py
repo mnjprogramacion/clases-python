@@ -49,10 +49,16 @@ class Donuts:
 
             print(f"\n\tÚltima casilla: {casilla} ({self.jugadaAnterior[0]+1}, {self.jugadaAnterior[1]+1})")
 
-    def verificarContiguas(self, y, x):
-        # Devuelve True si (y,x) es contigua a la última ficha según la dirección de la casilla
+    def movimientosValidos(self):
+        """
+        Devuelve una lista de posiciones válidas para colocar un donut, siguiendo el orden de prioridades:
+        - Casillas contiguas
+        - Línea de casillas desde borde
+        - Libertad total
+        """
         if self.jugadaAnterior is None:
-            return True
+            # Primera jugada: cualquier casilla libre
+            return [(y, x) for y in range(6) for x in range(6) if self.tablero[y][x] in (0,1,2,3)]
 
         y0, x0 = self.jugadaAnterior
         valor_anterior = self.tablero[y0][x0] % 4
@@ -62,93 +68,44 @@ class Donuts:
             2: [(-1,1),(1,-1)],      # diagonal /
             3: [(-1,-1),(1,1)]       # diagonal \
         }
-
+        # 1. Casillas contiguas
+        contiguas = []
         for dy, dx in direcciones[valor_anterior]:
             ny, nx = y0 + dy, x0 + dx
             if 0 <= ny < 6 and 0 <= nx < 6 and self.tablero[ny][nx] in (0,1,2,3):
-                if (ny, nx) == (y, x):
-                    return True
-        return False
+                contiguas.append((ny, nx))
+        if contiguas:
+            return contiguas
 
-    def verificarLineaBorde(self, y, x):
-        # Devuelve True si (y,x) está en la línea libre de un borde según la dirección de la última ficha
-        if self.jugadaAnterior is None:
-            return False
-
-        y0, x0 = self.jugadaAnterior
-        valor_anterior = self.tablero[y0][x0] % 4
-        direcciones = {
-            0: [(-1,0),(1,0)],
-            1: [(0,-1),(0,1)],
-            2: [(-1,1),(1,-1)],
-            3: [(-1,-1),(1,1)]
-        }
-
+        # 2. Línea desde borde
+        linea = []
         dir1, dir2 = direcciones[valor_anterior]
-
-        def recorrer(dy, dx):
-            ny, nx = y0 + dy, x0 + dx
-            while 0 <= ny < 6 and 0 <= nx < 6:
-                if self.tablero[ny][nx] in (0,1,2,3):
-                    if (ny, nx) == (y, x):
-                        return True
-                ny += dy
-                nx += dx
-            return False
-
         dy1, dx1 = dir1
         dy2, dx2 = dir2
         bloqueada1 = not (0 <= y0 + dy1 < 6 and 0 <= x0 + dx1 < 6)
         bloqueada2 = not (0 <= y0 + dy2 < 6 and 0 <= x0 + dx2 < 6)
-
+        def recorrer(dy, dx):
+            ny, nx = y0 + dy, x0 + dx
+            while 0 <= ny < 6 and 0 <= nx < 6:
+                if self.tablero[ny][nx] in (0,1,2,3):
+                    linea.append((ny, nx))
+                ny += dy
+                nx += dx
         if bloqueada1 and not bloqueada2:
-            return recorrer(dy2, dx2)
+            recorrer(dy2, dx2)
         if bloqueada2 and not bloqueada1:
-            return recorrer(dy1, dx1)
+            recorrer(dy1, dx1)
+        if linea:
+            return linea
 
-        return False
+        # 3. Libertad total
+        return [(y, x) for y in range(6) for x in range(6) if self.tablero[y][x] in (0,1,2,3)]
 
     def verificarCasilla(self, y, x):
         """
-        Devuelve True si la jugada (y,x) es válida según el orden de prioridades:
-        - Casillas contiguas
-        - Línea de casillas desde borde
-        - Libertad total
+        Devuelve True si la jugada (y,x) es válida según el orden de prioridades.
         """
-        if self.tablero[y][x] not in (0,1,2,3):
-            return False
-        if self.verificarContiguas(y,x):
-            return True
-        if self.verificarLineaBorde(y,x):
-            return True
-        return False
-
-    def movimientosValidos(self):
-        posiciones = []
-
-        # Contiguas
-        for y in range(6):
-            for x in range(6):
-                if self.verificarContiguas(y,x):
-                    posiciones.append((y,x))
-        if posiciones:
-            return posiciones
-
-        # Línea desde borde
-        for y in range(6):
-            for x in range(6):
-                if self.verificarLineaBorde(y,x):
-                    posiciones.append((y,x))
-        if posiciones:
-            return posiciones
-
-        # Libertad total
-        for y in range(6):
-            for x in range(6):
-                if self.tablero[y][x] in (0,1,2,3):
-                    posiciones.append((y,x))
-
-        return posiciones
+        return (y, x) in self.movimientosValidos()
 
     def colocar(self, n, y, x):
         # Comprobación contigua
@@ -185,40 +142,24 @@ class Donuts:
 
     def verificarVictoria(self):
         self.victoria = 0
-
-        def det_negro(val):
-            return val in (4,5,6,7)
-        def det_blanco(val):
-            return val in (8,9,10,11)
-
         # vertical, horizontal, diagonal \, diagonal /
         direcciones = [(1,0), (0,1), (1,1), (1,-1)]
-
         for y in range(6):
             for x in range(6):
                 val = self.tablero[y][x]
-                if not (det_negro(val) or det_blanco(val)):
+                if val not in (4,5,6,7,8,9,10,11):
                     continue
-
-                # determinar a qué jugador pertenece esta celda
-                es_j1 = det_negro(val)
-
+                jugador = 1 if val in (4,5,6,7) else 2
+                grupo = (4,5,6,7) if jugador == 1 else (8,9,10,11)
                 for dy, dx in direcciones:
                     contador = 1
                     ny, nx = y + dy, x + dx
-                    while 0 <= ny < 6 and 0 <= nx < 6:
-                        nv = self.tablero[ny][nx]
-                        if es_j1 and det_negro(nv):
-                            contador += 1
-                        elif (not es_j1) and det_blanco(nv):
-                            contador += 1
-                        else:
-                            break
+                    while 0 <= ny < 6 and 0 <= nx < 6 and self.tablero[ny][nx] in grupo:
+                        contador += 1
                         ny += dy
                         nx += dx
-
                     if contador >= 5:
-                        self.victoria = 1 if es_j1 else 2
+                        self.victoria = jugador
                         return
 
     def tableroLleno(self):
