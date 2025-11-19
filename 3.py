@@ -102,9 +102,7 @@ class Donuts:
         return [(y, x) for y in range(6) for x in range(6) if self.tablero[y][x] in (0,1,2,3)]
 
     def verificarCasilla(self, y, x):
-        """
-        Devuelve True si la jugada (y,x) es válida según el orden de prioridades.
-        """
+        # Devuelve True si la jugada (y,x) es válida según el orden de prioridades.
         return (y, x) in self.movimientosValidos()
 
     def colocar(self, n, y, x):
@@ -170,8 +168,8 @@ class Donuts:
         direcciones = [
             (-1, 0), (1, 0),       # vertical
             (0, -1), (0, 1),       # horizontal
-            (-1, -1), (-1, 1),     # diagonales
-            (1, -1), (1, 1)
+            (-1, -1), (1, 1),      # diagonal \
+            (1, -1), (-1, 1)       # diagonal /
         ]
 
         if jugador == 1:
@@ -290,8 +288,9 @@ class Menu:
                     print("\n\tSe genera un tablero nuevo aleatorio cada partida.")
                     print("\tSolo puedes colocar tu donut en las casillas contiguas la última casilla ocupada por tu oponente, en la dirección marcada por la línea.")
                     print("\t│ = arriba o abajo   ─ = izquierda o derecha   / = arriba a la derecha o abajo a la izquierda   \\ = arriba a la izquierda o abajo a la derecha")
-                    print("\n\tSi colocas dos donuts a los lados de tu contrincante, su ficha pasa a ser tuya.")
+                    print("\n\tSi rodeas los donuts de tu contrincante en línea recta, sus fichas pasan a ser tuyas.")
                     print("\tSi un jugador coloca un donut en un borde del tablero, el contrincante puede colocar su donut en toda la línea de casillas que indica la dirección, sin ser contigua.")
+                    print("\tSi un jugador tiene las dos direcciones bloqueadas, puede colocar su donut donde quiera.")
                     print("\n\tPuedes jugar contra la IA o contra un amigo.")
                 case 4:
                     print("\n\tSaliendo del programa...")
