@@ -68,33 +68,45 @@ class Donuts:
             2: [(-1,1),(1,-1)],      # diagonal /
             3: [(-1,-1),(1,1)]       # diagonal \
         }
-        # 1. Casillas contiguas
-        contiguas = []
-        for dy, dx in direcciones[valor_anterior]:
-            ny, nx = y0 + dy, x0 + dx
-            if 0 <= ny < 6 and 0 <= nx < 6 and self.tablero[ny][nx] in (0,1,2,3):
-                contiguas.append((ny, nx))
-        if contiguas:
-            return contiguas
 
-        # 2. Línea desde borde
-        linea = []
+        # Comprobación de casillas vacías
+        def es_libre(y, x):
+            return 0 <= y < 6 and 0 <= x < 6 and self.tablero[y][x] in (0,1,2,3)
+
         dir1, dir2 = direcciones[valor_anterior]
-        dy1, dx1 = dir1
-        dy2, dx2 = dir2
-        bloqueada1 = not (0 <= y0 + dy1 < 6 and 0 <= x0 + dx1 < 6)
-        bloqueada2 = not (0 <= y0 + dy2 < 6 and 0 <= x0 + dx2 < 6)
-        def recorrer(dy, dx):
-            ny, nx = y0 + dy, x0 + dx
-            while 0 <= ny < 6 and 0 <= nx < 6:
-                if self.tablero[ny][nx] in (0,1,2,3):
-                    linea.append((ny, nx))
-                ny += dy
-                nx += dx
-        if bloqueada1 and not bloqueada2:
-            recorrer(dy2, dx2)
-        if bloqueada2 and not bloqueada1:
-            recorrer(dy1, dx1)
+
+        # Comprueba las casillas contiguas
+        n1 = (y0 + dir1[0], x0 + dir1[1])
+        n2 = (y0 + dir2[0], x0 + dir2[1])
+
+        libre1 = es_libre(*n1)
+        libre2 = es_libre(*n2)
+
+        # 1. casillas contiguas
+        if libre1 and libre2:
+            return [n1, n2]
+
+        # 2. linea desde borde
+        linea = []
+
+        # Dirección 1
+        dy, dx = dir1
+        ny, nx = y0 + dy, x0 + dx
+        while 0 <= ny < 6 and 0 <= nx < 6:
+            if self.tablero[ny][nx] in (0,1,2,3):
+                linea.append((ny, nx))
+            ny += dy
+            nx += dx
+
+        # Dirección 2
+        dy, dx = dir2
+        ny, nx = y0 + dy, x0 + dx
+        while 0 <= ny < 6 and 0 <= nx < 6:
+            if self.tablero[ny][nx] in (0,1,2,3):
+                linea.append((ny, nx))
+            ny += dy
+            nx += dx
+
         if linea:
             return linea
 
@@ -110,7 +122,7 @@ class Donuts:
         if not (0 <= x < 6 and 0 <= y < 6):
             return False
 
-        # Comprobación casilla vaía
+        # Comprobación casilla vacía
         if self.tablero[y][x] not in (0,1,2,3):
             return False
 
@@ -197,6 +209,7 @@ class Donuts:
                         self.tablero[cy][cx] = 8 + forma
 
     def empezarJuego(self, nJ):
+        self.victoria = 0
         self.jugadaAnterior = None
         self.generarTablero()
         self.pintarTablero()
