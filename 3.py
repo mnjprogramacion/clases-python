@@ -301,9 +301,9 @@ class Menu:
                     print("\n\tSe genera un tablero nuevo aleatorio cada partida.")
                     print("\tSolo puedes colocar tu donut en las casillas contiguas la última casilla ocupada por tu oponente, en la dirección marcada por la línea.")
                     print("\t│ = arriba o abajo   ─ = izquierda o derecha   / = arriba a la derecha o abajo a la izquierda   \\ = arriba a la izquierda o abajo a la derecha")
-                    print("\n\tSi rodeas los donuts de tu contrincante en línea recta, sus fichas pasan a ser tuyas.")
-                    print("\tSi un jugador coloca un donut en un borde del tablero, el contrincante puede colocar su donut en toda la línea de casillas que indica la dirección, sin ser contigua.")
-                    print("\tSi un jugador tiene las dos direcciones bloqueadas, puede colocar su donut donde quiera.")
+                    print("\n\tSi una o las dos posibles casillas están bloqueadas, el siguiente jugador puede colocar en toda la línea de casillas indicada por la línea.")
+                    print("\tSi ninguna de las dos opciones anteriores es posible, el jugador puede colocar su donut donde quiera.")
+                    print("\n\tSi rodeas los donuts de tu contrincante en línea recta, pasan a ser tuyos.")
                     print("\n\tPuedes jugar contra la IA o contra un amigo.")
                 case 4:
                     print("\n\tSaliendo del programa...")
