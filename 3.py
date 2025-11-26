@@ -177,31 +177,26 @@ class Donuts:
         return all(celda not in (0, 1, 2, 3) for fila in self.tablero for celda in fila)
 
     def capturarFichas(self, jugador, y, x):
-        direcciones = [
-            (-1, 0), (1, 0),       # vertical
-            (0, -1), (0, 1),       # horizontal
-            (-1, -1), (1, 1),      # diagonal \
-            (1, -1), (-1, 1)       # diagonal /
+        pares_direcciones = [
+            [(-1, 0), (1, 0)],       # vertical
+            [(0, -1), (0, 1)],       # horizontal
+            [(-1, -1), (1, 1)],      # diagonal \
+            [(1, -1), (-1, 1)]       # diagonal /
         ]
 
         if jugador == 1:
-            propio = (4, 5, 6, 7)
             rival = (8, 9, 10, 11)
         else:
-            propio = (8, 9, 10, 11)
             rival = (4, 5, 6, 7)
 
-        for dy, dx in direcciones:
-            ny, nx = y + dy, x + dx
-            fichas_capturadas = []
-
-            while 0 <= ny < 6 and 0 <= nx < 6 and self.tablero[ny][nx] in rival:
-                fichas_capturadas.append((ny, nx))
-                ny += dy
-                nx += dx
-
-            if 0 <= ny < 6 and 0 <= nx < 6 and self.tablero[ny][nx] in propio and len(fichas_capturadas) > 0:
-                for cy, cx in fichas_capturadas:
+        for (dy1, dx1), (dy2, dx2) in pares_direcciones:
+            ny1, nx1 = y + dy1, x + dx1
+            ny2, nx2 = y + dy2, x + dx2
+            
+            if (0 <= ny1 < 6 and 0 <= nx1 < 6 and self.tablero[ny1][nx1] in rival and
+                0 <= ny2 < 6 and 0 <= nx2 < 6 and self.tablero[ny2][nx2] in rival):
+                
+                for cy, cx in [(ny1, nx1), (ny2, nx2)]:
                     forma = self.tablero[cy][cx] % 4
                     if jugador == 1:
                         self.tablero[cy][cx] = 4 + forma
