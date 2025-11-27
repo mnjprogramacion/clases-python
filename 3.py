@@ -53,7 +53,7 @@ class Donuts:
         """
         Devuelve una lista de posiciones válidas para colocar un donut, siguiendo el orden de prioridades:
         - Casillas contiguas
-        - Línea de casillas desde borde
+        - Línea de casillas
         - Libertad total
         """
         if self.jugadaAnterior is None:
