@@ -52,9 +52,8 @@ class Donuts:
     def movimientosValidos(self):
         """
         Devuelve una lista de posiciones válidas para colocar un donut, siguiendo el orden de prioridades:
-        - Casillas contiguas
-        - Línea de casillas
-        - Libertad total
+        - Línea de casillas completa
+        - Libertad total (si la línea está llena)
         """
         if self.jugadaAnterior is None:
             # Primera jugada: cualquier casilla libre
@@ -69,71 +68,23 @@ class Donuts:
             3: [(-1,-1),(1,1)]       # diagonal \
         }
 
-        # Comprobación de casillas vacías
-        def es_libre(y, x):
-            return 0 <= y < 6 and 0 <= x < 6 and self.tablero[y][x] in (0,1,2,3)
-
-        dir1, dir2 = direcciones[valor_anterior]
-
-        # Comprueba las casillas contiguas
-        n1 = (y0 + dir1[0], x0 + dir1[1])
-        n2 = (y0 + dir2[0], x0 + dir2[1])
-
-        libre1 = es_libre(*n1)
-        libre2 = es_libre(*n2)
-
-        # 1. casillas contiguas
-        if libre1 and libre2:
-            return [n1, n2]
-
-        # 2. linea desde borde
         linea = []
-
-        # Dirección 1
-        dy, dx = dir1
-        ny, nx = y0 + dy, x0 + dx
-        while 0 <= ny < 6 and 0 <= nx < 6:
-            if self.tablero[ny][nx] in (0,1,2,3):
-                linea.append((ny, nx))
-            ny += dy
-            nx += dx
-
-        # Dirección 2
-        dy, dx = dir2
-        ny, nx = y0 + dy, x0 + dx
-        while 0 <= ny < 6 and 0 <= nx < 6:
-            if self.tablero[ny][nx] in (0,1,2,3):
-                linea.append((ny, nx))
-            ny += dy
-            nx += dx
+        for dy, dx in direcciones[valor_anterior]:
+            ny, nx = y0 + dy, x0 + dx
+            while 0 <= ny < 6 and 0 <= nx < 6:
+                if self.tablero[ny][nx] in (0,1,2,3):
+                    linea.append((ny, nx))
+                ny += dy
+                nx += dx
 
         if linea:
             return linea
 
-        # 3. Libertad total
+        # Si la línea está llena -> Libertad total
         return [(y, x) for y in range(6) for x in range(6) if self.tablero[y][x] in (0,1,2,3)]
 
-    def verificarCasilla(self, y, x):
-        # Devuelve True si la jugada (y,x) es válida según el orden de prioridades.
-        return (y, x) in self.movimientosValidos()
-
     def colocar(self, n, y, x):
-        # Comprobación contigua
-        if not (0 <= x < 6 and 0 <= y < 6):
-            return False
-
-        # Comprobación casilla vacía
-        if self.tablero[y][x] not in (0,1,2,3):
-            return False
-
-        # Si es la primera jugada, cualquier casilla es válida
-        if self.jugadaAnterior is None:
-            permitir = True
-        else:
-            validas = self.movimientosValidos()
-            permitir = (y, x) in validas
-
-        if not permitir:
+        if (y, x) not in self.movimientosValidos():
             return False
 
         match self.tablero[y][x]:
@@ -218,11 +169,9 @@ class Donuts:
                 except:
                     y = -1
                     x = -1
-                if self.jugadaAnterior != None:
-                    valido = self.colocar(1, y, x)
-                else:
-                    self.colocar(1, y, x)
-                    valido = True
+                
+                valido = self.colocar(1, y, x)
+
                 if valido == True:
                     self.jugadaAnterior = (y, x)
                     self.capturarFichas(1, y, x)
@@ -294,11 +243,10 @@ class Menu:
                     print("\n\tDonuts es un juego similar al 3 en raya.")
                     print("\tDebes colocar 5 donuts consecutivos en una línea antes que tu oponente.")
                     print("\n\tSe genera un tablero nuevo aleatorio cada partida.")
-                    print("\tSolo puedes colocar tu donut en las casillas contiguas la última casilla ocupada por tu oponente, en la dirección marcada por la línea.")
+                    print("\tSolo puedes colocar tu donut en las direcciones marcadas por la línea de la última casilla jugada.")
                     print("\t│ = arriba o abajo   ─ = izquierda o derecha   / = arriba a la derecha o abajo a la izquierda   \\ = arriba a la izquierda o abajo a la derecha")
-                    print("\n\tSi una o las dos posibles casillas están bloqueadas, el siguiente jugador puede colocar en toda la línea de casillas indicada por la línea.")
-                    print("\tSi ninguna de las dos opciones anteriores es posible, el jugador puede colocar su donut donde quiera.")
-                    print("\n\tSi rodeas los donuts de tu contrincante en línea recta, pasan a ser tuyos.")
+                    print("\n\tSi ninguna de las dos opciones anteriores es posible, puedes colocar tu donut donde quieras.")
+                    print("\n\tSi colocas un donut entre dos enemigos en línea recta, pasan a ser tuyos.")
                     print("\n\tPuedes jugar contra la IA o contra un amigo.")
                 case 4:
                     print("\n\tSaliendo del programa...")
